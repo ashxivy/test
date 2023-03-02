@@ -74,7 +74,24 @@ class Graph:
     
 
     def connected_components(self):
-        raise NotImplementedError
+        liste_composantes = []
+        noeuds_visites = {noeud: False for noeud in self.nodes}
+
+        def visiter(noeud):
+            composante = [noeud]
+            for voisin in self.graph[noeud]:
+                voisin = voisin[0]
+                if not noeuds_visites[voisin]:
+                    noeuds_visites[voisin]=True
+                    composante += visiter(voisin)
+            return composante
+
+        for noeud in self.nodes:
+            if not noeuds_visites[noeud]:
+                liste_composantes.append(visiter(noeud))
+
+        return liste_composantes
+
 
 
     def connected_components_set(self):
