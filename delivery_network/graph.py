@@ -70,7 +70,41 @@ class Graph:
     
 
     def get_path_with_power(self, src, dest, power):
-        raise NotImplementedError
+        ensemble_chemins=[]
+        resultat = []
+        noeuds_visites = {noeud: False for noeud in self.nodes} #on marque tous les noeuds comme non visistés
+        noeuds_visites[src]=True #on marque le sommet comme visité 
+        point = src
+
+        def passage(noeud): #on définit un pt de départ
+            chemin = [noeud] 
+            for voisin in self.graph[noeud]: #pour tous les voisins du points de départ
+                if voisin[1]>power: #si ils ne sont pas accessibles
+                    noeuds_visites[voisin]=None
+                if voisin[1]<=power: #s'il sont accessibles 
+                    voisin = voisin[0] 
+                    if not noeuds_visites[voisin]: #s'ils n'ont pas été visistés 
+                        noeuds_visites[voisin]=True #on les marque comme atteints
+                        if voisin != dest: #s'ils sont différents du pt d'arrivé chercher, on les parcourt de même
+                            chemin += passage(voisin)
+                        else:
+                            chemin += [dest]
+                        break
+            return chemin
+
+        while False in noeuds_visites.values():
+            ensemble_chemins += passage(src)
+
+        for voie in ensemble_chemins:
+            if voie[-1]==dest:
+                resultat = voie
+        if resultat == []:
+            resultat = None
+
+        return resultat
+
+
+
     
 
     def connected_components(self):
