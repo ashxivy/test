@@ -69,42 +69,7 @@ class Graph:
         self.nb_edges += 1
     
 
-    def get_path_with_power(self, src, dest, power):
-        ensemble_chemins=[]
-        resultat = []
-        noeuds_visites = {noeud: False for noeud in self.nodes} #on marque tous les noeuds comme non visistés
-        noeuds_visites[src]=True #on marque le sommet comme visité 
-        point = src
-
-        def passage(noeud): #on définit un pt de départ
-            chemin = [noeud] 
-            for voisin in self.graph[noeud]: #pour tous les voisins du points de départ
-                if voisin[1]>power: #si ils ne sont pas accessibles
-                    noeuds_visites[voisin]=None
-                if voisin[1]<=power: #s'il sont accessibles 
-                    voisin = voisin[0] 
-                    if not noeuds_visites[voisin]: #s'ils n'ont pas été visistés 
-                        noeuds_visites[voisin]=True #on les marque comme atteints
-                        if voisin != dest: #s'ils sont différents du pt d'arrivé chercher, on les parcourt de même
-                            chemin += passage(voisin)
-                        else:
-                            chemin += [dest]
-                        break
-            return chemin
-
-        while False in noeuds_visites.values():
-            ensemble_chemins += passage(src)
-
-        for voie in ensemble_chemins:
-            if voie[-1]==dest:
-                resultat = voie
-        if resultat == []:
-            resultat = None
-
-        return resultat
-
-
-
+ 
     
 
     def connected_components(self):
@@ -134,6 +99,80 @@ class Graph:
         For instance, for network01.in: {frozenset({1, 2, 3}), frozenset({4, 5, 6, 7})}
         """
         return set(map(frozenset, self.connected_components()))
+    
+
+
+    def get_path_with_power(self, src, dest, power):
+        
+        test=False
+        for liste in self.connected_components_set():
+            if src and dest in liste:
+                test=True
+
+        if not test:
+            chemin=None
+        
+        else:
+            distance = {noeud: float('inf') for noeud in self.nodes}
+            distance[src]=0
+            origins = {noeud: None for noeud in self.nodes}
+            liste_sommets=list(self.nodes)
+
+            def find_min(liste, power):
+                sol=0
+                min_dist=float('inf')
+                if liste is not None:
+                    for sommet in liste:
+                        for voisin in self.graph[sommet]:
+                            if voisin[1]<=power:
+                                if distance[voisin[0]] < min_dist:
+                                    min_dist=distance[voisin[0]]
+                                    sol = voisin[0]
+                return sol
+        
+            def poids(s1,s2):
+                dist=None
+                for voisin in self.graph[s1]:
+                    if voisin[0]==s2:
+                        dist=voisin[2]
+                return dist
+
+        
+            def maj_dist(s1,s2):
+                if distance[s2]>distance[s1] + poids(s1,s2):
+                    distance[s2] = distance[s1] + poids(s1,s2)
+                    origins[s2]=s1
+
+            while liste_sommets != [] and liste_sommets is not None:
+                point=find_min(liste_sommets,power)
+                liste_sommets=liste_sommets.remove(point)
+                for voisin in self.graph[point]:
+                    maj_dist(point, voisin[0])
+
+            chemin=[]
+            s=dest
+            while s != src:
+                chemin +=[s]
+                s=origins[s]
+            chemin+=[src]
+            chemin.reverse()
+        
+        return chemin
+
+
+
+
+        
+    
+
+
+
+
+
+
+
+
+
     
     def min_power(self, src, dest):
         """
