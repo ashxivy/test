@@ -103,7 +103,11 @@ class Graph:
 
 
     def get_path_with_power(self, src, dest, power):
-        
+        """
+        piste de doute: la condition sur la puissance du camion, actuellement implémentée dans la fonction find min
+        possible que ça pose pb dans l'exploration de toutes les arrêtes 
+        """
+
         test=False
 
         for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
@@ -165,6 +169,72 @@ class Graph:
             chemin.reverse()
         
         return chemin
+    
+
+
+
+    def get_shorter_path(self, src, dest):
+        
+        test=False
+
+        for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
+            if src and dest in liste:
+                test=True
+
+        if not test:
+            chemin=None
+        
+        else: #programme si on sait qu'un chemin existe 
+
+            #initialisation
+            distance = {noeud: float('inf') for noeud in self.nodes}
+            distance[src]=0
+            origins = {noeud: None for noeud in self.nodes}
+            liste_sommets=list(self.nodes)
+
+            #définition des fonctions annexes
+            def find_min(liste, power): #trouve le sommet le plus proche du pt de départ grâce au dico voisin avec la contrainte de puissance
+                sol=0
+                min_dist=float('inf')
+                if liste is not None:
+                    for sommet in liste:
+                        for voisin in self.graph[sommet]:
+                                if distance[voisin[0]] < min_dist:
+                                    min_dist=distance[voisin[0]]
+                                    sol = voisin[0]
+                return sol
+        
+            def poids(s1,s2): #donne la distance entre deux points
+                dist=None
+                for voisin in self.graph[s1]:
+                    if voisin[0]==s2:
+                        dist=voisin[2]
+                return dist
+
+        
+            def maj_dist(s1,s2): #met à jour les distances par rapport au point de départ et note l'antécédent du sommet considéré pour pouvoir faire le chemin inverse si un chemin est possible grâce au dico origins
+                if distance[s2]>distance[s1] + poids(s1,s2):
+                    distance[s2] = distance[s1] + poids(s1,s2)
+                    origins[s2]=s1
+
+
+            #programme principal qui associe à chaque sommet une distance par rapport au point de départ en tenant compte de la contrainte
+            while liste_sommets != [] and liste_sommets is not None:
+                point=find_min(liste_sommets,power)
+                liste_sommets=liste_sommets.remove(point)
+                for voisin in self.graph[point]:
+                    maj_dist(point, voisin[0])
+
+            #programme qui construit le plus court chemin
+            chemin=[]
+            s=dest
+            while s != src:
+                chemin +=[s]
+                s=origins[s]
+            chemin+=[src]
+            chemin.reverse()
+        
+        return chemin
 
 
 
@@ -182,10 +252,16 @@ class Graph:
 
     
     def min_power(self, src, dest):
-        """
-        Should return path, min_power. 
-        """
-        raise NotImplementedError
+        path=self.get_shorter_path(self, src, dest)
+        power=0
+        for i in len(path):
+            etape=path[i]
+            for voisin in self.graph[etape]:
+                if voisin[0]==path[i+1]:
+                    if voisin[1]>power:
+                        power=voisin[1]
+        return path, power
+
 
 
 def graph_from_file(filename):
