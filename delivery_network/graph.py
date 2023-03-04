@@ -1,3 +1,5 @@
+import graphviz
+
 class Graph:
     """
     A class representing graphs as adjacency lists and implementing various algorithms on the graphs. Graphs in the class are not oriented. 
@@ -261,6 +263,18 @@ class Graph:
                     if voisin[1]>power:
                         power=voisin[1]
         return path, power
+    
+    def visuals(self):
+        dessin = graphviz.Digraph('map', filename='map.gv')
+        dessin.attr(rankdir='LR', size='8,5')
+        dessin.attr('node', shape='doublecircle')
+        for node in self.nodes:
+            dessin.node(node)
+        for node in self.nodes:
+            for voisin in self.graph(node):
+                dessin.edge(node,voisin[0], label=voisin[1])
+        return dessin.view()
+
 
 
 
@@ -298,3 +312,6 @@ def graph_from_file(filename):
             else:
                 raise Exception("Format incorrect")
     return g
+
+
+
