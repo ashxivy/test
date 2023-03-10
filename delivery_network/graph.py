@@ -104,6 +104,55 @@ class Graph:
     
 
 
+
+
+
+
+    def get_path_with_power_v1(self, src, dest, power):
+        test=False
+
+        for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
+            if src and dest in liste:
+                test=True
+                component=liste
+
+        if not test:
+            chemins=None
+        
+        else: #programme si on sait qu'un chemin existe 
+            origins = {noeud: None for noeud in component}
+            liste_sommets=list(self.nodes)
+            color={noeud: "white" for noeud in component}
+            color[src]="gray"
+            chemins=[]
+            i=0
+            curseur=src
+
+            def visiter(curseur, color):
+                chemin=[curseur]
+                while chemin[-1] is not (dest or None):
+                    for voisin in self.graph[curseur]:
+                        if color[voisin[0]]=="white":
+                            color[voisin[0]]="gray"
+                            if voisin[1]< power:
+                                chemin+=visiter(voisin[0],color)
+                                test_visite=True
+                    if not test_visite:
+                        color[curseur]="black"
+                        chemin = None
+                    return chemin
+
+            while "white" in color.values():
+                chemins.append(visiter(src,color))
+            
+        return chemins
+
+                
+    
+
+
+
+
     def get_path_with_power(self, src, dest, power):
         """
         piste de doute: la condition sur la puissance du camion, actuellement implémentée dans la fonction find min
@@ -253,7 +302,7 @@ class Graph:
 
 
     
-    def min_power(self, src, dest):
+    def min_power_for_shorter_path(self, src, dest):
         path=self.get_shorter_path(self, src, dest)
         power=0
         for i in len(path):
