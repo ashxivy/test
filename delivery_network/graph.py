@@ -328,25 +328,6 @@ class Graph:
 
 
 def graph_from_file(filename):
-    def graph_from_file(filename):
-    f = open(filename,"r",encoding="utf-8")
-    s = f.readlines()
-    
-    for i in range(0, len(s)): 
-        s[i]=s[i].split(" ")
-    
-    for i in range(0, len(s)): 
-        if len(s[i])<4:
-            s[i][2]=int(s[i][2])
-            s[i].append(1)
-        else : 
-            s[i][3]=int(s[i][3])
-           
-    g=Graph()
-    print(s)
-    for i in s:
-        g.add_edge(i[0],i[1],i[2],i[3])
-    return g
     """
     Reads a text file and returns the graph as an object of the Graph class.
 
