@@ -113,14 +113,20 @@ class Graph:
         # Recherche en largeur du graphe pour trouver un chemin de s à t
         queue = [(src, [])]  # (sommet, chemin)
         visited = set()
-        while queue:
-            u, path = queue.pop(0)
-            if u == dest:  # Nous avons trouvé un chemin de s à t
+        while queue: #tant que queue est non vide
+            node, path = queue.pop(0)
+            """
+            L'instruction queue.pop(0) supprime et retourne le premier élément de la liste queue. 
+            Dans ce cas, la variable node prend la valeur du premier élément de la liste, 
+            qui est un tuple contenant le sommet courant, et la liste path qui contient le chemin parcouru pour arriver à ce sommet. 
+            Ainsi, à chaque itération de la boucle while, on considère le prochain sommet de la queue pour explorer ses voisins.
+            """
+            if node == dest:  # Nous avons trouvé un chemin de src à dest
                 return path + [dest]  # Ajouter le dernier sommet à la fin du chemin
-            visited.add(u)
-            for voisin in self.graph[u]:
+            visited.add(node) #on ajoute node à la liste des sommets visités
+            for voisin in self.graph[node]:
                 if voisin[0] not in visited and voisin[1] <=  power:  # Nous ne visitons que les sommets avec des arêtes valides
-                    queue.append((voisin[0], path + [u]))  # Ajouter le chemin à la liste de chemins
+                    queue.append((voisin[0], path + [node]))  # Ajouter le chemin à la liste de chemins pour le reparcourir
         # Si nous sortons de la boucle while sans trouver de chemin, cela signifie que nous n'avons pas trouvé de chemin valide
         return None
 
@@ -129,20 +135,27 @@ class Graph:
     
     def find_all_paths(self, src, dest, path=[]):
         """
-        Renvoie tous les chemins entre start et end dans un graphe représenté sous forme de dictionnaire.
+        Renvoie tous les chemins entre src et dest 
         """
-        if src == dest:
-            return [path + [src]]
+        test=False
 
-        if src not in self.nodes:
-            return []
+        for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
+            if src and dest in liste:
+                test=True
 
-        paths = []
-        for node in self.graph[src]:
-            if node[0] not in path:
-                newpaths = self.find_all_paths(node[0], dest, path + [src])
-                for newpath in newpaths:
-                    paths.append(newpath)
+        if not test:
+            paths=None
+        
+        else: #programme si on sait qu'un chemin existe 
+            if src == dest: #si on parvient jusqu'à la dernière arrête
+                return [path + [src]]
+
+            paths = []
+            for node in self.graph[src]:
+                if node[0] not in path: #on verifie si le sommet n'est aps déjà dans le chemin pour éviter les cycles
+                    newpaths = self.find_all_paths(node[0], dest, path + [src]) 
+                    for newpath in newpaths:
+                        paths.append(newpath)
 
         return paths
 
@@ -151,15 +164,15 @@ class Graph:
 
     
 
-    
-
-
-    
     def min_power(self, src, dest):
-        paths = self.find_all_paths(src, dest)
+        """
+        Écrire une fonction min_power qui calcule, pour un trajet t donné, la puissance minimale
+        d’un camion pouvant couvrir ce trajet. La fonction devra retourner le chemin, et la puissance minimale.
+        """
+        paths = self.find_all_paths(src, dest) #on receuille tous les chemins possibles
         powers = []
 
-        def get_power(path):
+        def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
             power = 0
             for i in range(len(path)-1):
                 for voisin in self.graph[path[i]]:
@@ -168,11 +181,11 @@ class Graph:
             return power
 
         for path in paths:
-            powers.append(get_power(path))
+            powers.append(get_power(path)) #on receuille la puissance nécéssaire de tous les chemins
 
-        power = min(powers)
+        power = min(powers) #on prend le min des puissances
         i = powers.index(power)
-        solution = paths[i]
+        solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
 
         return solution, power
 
