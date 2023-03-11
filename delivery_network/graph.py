@@ -102,7 +102,24 @@ class Graph:
         """
         return set(map(frozenset, self.connected_components()))
     
+    def find_all_paths(self, src, dest, path=[]):
+        """
+        Renvoie tous les chemins entre start et end dans un graphe représenté sous forme de dictionnaire.
+        """
+        if src == dest:
+            return [path + [src]]
 
+        if src not in self.nodes:
+            return []
+
+        paths = []
+        for node in self.graph[src]:
+            if node[0] not in path:
+                newpaths = self.find_all_paths(node[0], dest, path + [src])
+                for newpath in newpaths:
+                    paths.append(newpath)
+
+        return paths
 
 
 
@@ -128,34 +145,21 @@ class Graph:
         return None
     
 
-        def get_path(self, src, dest, power):
-            """
-        Détermine si un camion de puissance p peut couvrir le trajet t,
-        et retourne un chemin admissible si c'est possible, ou None sinon.
-            """
-        # Recherche en largeur du graphe pour trouver un chemin de s à t
-        queue = [(src, [])]  # (sommet, chemin)
-        visited = set()
-        while queue:
-            u, path = queue.pop(0)
-            if u == dest:  # Nous avons trouvé un chemin de s à t
-                return path + [dest]  # Ajouter le dernier sommet à la fin du chemin
-            visited.add(u)
-            for voisin in self.graph[u]:
-                if voisin[0] not in visited and voisin[1] <=  power:  # Nous ne visitons que les sommets avec des arêtes valides
-                    queue.append((voisin[0], path + [u]))  # Ajouter le chemin à la liste de chemins
-        # Si nous sortons de la boucle while sans trouver de chemin, cela signifie que nous n'avons pas trouvé de chemin valide
-        return None
+
+    
+    def min_power(self, src, dest):
+        return
     
 
 
-
-
+#tests douteux qui n'ont pas vrm marchés
+"""""
     def get_path_with_power2(self, src, dest, power):
         """
-        piste de doute: la condition sur la puissance du camion, actuellement implémentée dans la fonction find min
-        possible que ça pose pb dans l'exploration de toutes les arrêtes 
-        """
+        
+        #piste de doute: la condition sur la puissance du camion, actuellement implémentée dans la fonction find min
+        #possible que ça pose pb dans l'exploration de toutes les arrêtes 
+"""
 
         test=False
 
@@ -287,21 +291,7 @@ class Graph:
         
         return chemin
 
-
-
-
-        
-    
-
-
-
-
-
-
-
-
-
-    
+   
     def min_power_for_shorter_path(self, src, dest):
         path=self.get_shorter_path(self, src, dest)
         power=0
@@ -314,8 +304,7 @@ class Graph:
         return path, power
     
 
-    def min_power(self, src, dest):
-        return 
+ 
 
     
     def visuals(self):
@@ -329,7 +318,7 @@ class Graph:
                 dessin.edge(node,voisin[0], label=voisin[1])
         return dessin.view()
 
-
+"""
 
 
 def graph_from_file(filename):
