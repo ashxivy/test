@@ -121,12 +121,46 @@ class Graph:
         
         else: #programme si on sait qu'un chemin existe 
             origins = {noeud: None for noeud in component}
-            liste_sommets=list(self.nodes)
-            color={noeud: "white" for noeud in component}
-            color[src]="gray"
+            color={noeud: False for noeud in component}
+            color[src]=True
+            maj=list(component)
+            maj=maj.remove(src)
             chemins=[]
-            i=0
-            curseur=src
+
+        
+            while maj != []:
+                curseur = src
+                chemin=[src]
+                while chemin[-1] is not dest or None:
+                    condition_test=False
+                    for voisin in self.graph[curseur]:
+                        if not color[voisin[0]]:
+                            color[voisin[0]]=True
+                            maj=list(maj).remove(voisin[0])
+                            if voisin[1]>power:
+                                chemin+=[voisin[0]]
+                                condition_test=True
+                                origins[voisin[0]]=curseur
+                                curseur=voisin[0]
+                    if not condition_test:
+                        curseur=origins[curseur]
+                        if curseur == src:
+                            chemin=None
+                    chemins=chemins+[chemin]
+
+
+            chemins=chemins.remove([None])
+            if chemins==[]:
+                chemins=None
+
+        
+        return chemins
+    
+
+    """""
+                if not noeuds_visites[noeud]:
+                    liste_composantes.append(visiter(noeud))
+
 
             def visiter(curseur, color):
                 chemin=[curseur]
@@ -148,12 +182,33 @@ class Graph:
         return chemins
 
                 
+    """
+
     
-
-
-
-
     def get_path_with_power(self, src, dest, power):
+
+        node_visited={node:False for node in self.nodes}
+        node_visited[src]=True
+        def dfs(node):
+            chemin=[node]
+            for voisin in self.graph[node]:
+                if voisin[1]<=power:
+                    if voisin[0]==dest:
+                        node_visited[voisin[0]]=True
+                        chemin.append()
+                        return(chemin)
+                    elif not node_visited[voisin[0]]:
+                        if voisin[1]<=power:
+                            node_visited[voisin[0]]=True
+                            chemin+=dfs(voisin[0])
+            return(chemin)
+        
+        return dfs(src)
+
+
+
+
+    def get_path_with_power2(self, src, dest, power):
         """
         piste de doute: la condition sur la puissance du camion, actuellement implémentée dans la fonction find min
         possible que ça pose pb dans l'exploration de toutes les arrêtes 
@@ -164,6 +219,7 @@ class Graph:
         for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
             if src and dest in liste:
                 test=True
+                component=liste
 
         if not test:
             chemin=None
@@ -174,7 +230,8 @@ class Graph:
             distance = {noeud: float('inf') for noeud in self.nodes}
             distance[src]=0
             origins = {noeud: None for noeud in self.nodes}
-            liste_sommets=list(self.nodes)
+            liste_sommets=list(component)
+            liste_sommets=liste_sommets.remove(src)
 
             #définition des fonctions annexes
             def find_min(liste, power): #trouve le sommet le plus proche du pt de départ grâce au dico voisin avec la contrainte de puissance
@@ -183,7 +240,7 @@ class Graph:
                 if liste is not None:
                     for sommet in liste:
                         for voisin in self.graph[sommet]:
-                            if voisin[1]<=power:
+                            if voisin[1]>power:
                                 if distance[voisin[0]] < min_dist:
                                     min_dist=distance[voisin[0]]
                                     sol = voisin[0]
@@ -215,7 +272,7 @@ class Graph:
             s=dest
             while s != src:
                 chemin +=[s]
-                s=origins[s]
+                s=origins.get(s)
             chemin+=[src]
             chemin.reverse()
         
@@ -271,7 +328,7 @@ class Graph:
 
             #programme principal qui associe à chaque sommet une distance par rapport au point de départ en tenant compte de la contrainte
             while liste_sommets != [] and liste_sommets is not None:
-                point=find_min(liste_sommets,power)
+                point=find_min(liste_sommets)
                 liste_sommets=liste_sommets.remove(point)
                 for voisin in self.graph[point]:
                     maj_dist(point, voisin[0])
