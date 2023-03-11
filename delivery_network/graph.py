@@ -162,8 +162,6 @@ class Graph:
 
 
 
-    
-
     def min_power(self, src, dest):
         """
         Écrire une fonction min_power qui calcule, pour un trajet t donné, la puissance minimale
@@ -188,6 +186,38 @@ class Graph:
         solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
 
         return solution, power
+    
+    def min_power_kruskal(self, src, dest):
+        g=kruskal(self)
+
+        def dfs(graph,src,dest):
+            visited={noeud: False for noeud in graph.nodes}
+            origin={noeud: None for noeud in graph.nodes}
+            visited[src]=True
+            for voisin in graph.graph[src]:
+                origin[voisin[0]]=src
+                if voisin[0]==dest:
+                    path=[voisin[0]]
+                    while path[0]!=src:
+                        path.append(0,origin[path[0]])
+                else:
+                    path=dfs(voisin[0],dest)
+                    if path != None:
+                        path.append(0,src)
+                        return path
+            return None
+        
+        path=dfs(g,src,dest)
+
+        def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
+            power = 0
+            for i in range(len(path)-1):
+                for voisin in self.graph[path[i]]:
+                    if voisin[0] == path[i+1] and voisin[1]>power:
+                        power = voisin[1]
+            return power
+
+        return get_power(path), path
     
 
     
