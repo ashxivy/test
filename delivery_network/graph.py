@@ -107,120 +107,46 @@ class Graph:
 
 
 
-
-    def get_path_with_power_v1(self, src, dest, power):
-        test=False
-
-        for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
-            if src and dest in liste:
-                test=True
-                component=liste
-
-        if not test:
-            chemins=None
-        
-        else: #programme si on sait qu'un chemin existe 
-            origins = {noeud: None for noeud in component}
-            color={noeud: False for noeud in component}
-            color[src]=True
-            maj=list(component)
-            maj=maj.remove(src)
-            chemins=[]
-
-        
-            while maj != []:
-                curseur = src
-                chemin=[src]
-                while chemin[-1] is not dest or None:
-                    condition_test=False
-                    for voisin in self.graph[curseur]:
-                        if not color[voisin[0]]:
-                            color[voisin[0]]=True
-                            maj=list(maj).remove(voisin[0])
-                            if voisin[1]>power:
-                                chemin+=[voisin[0]]
-                                condition_test=True
-                                origins[voisin[0]]=curseur
-                                curseur=voisin[0]
-                    if not condition_test:
-                        curseur=origins[curseur]
-                        if curseur == src:
-                            chemin=None
-                    chemins=chemins+[chemin]
-
-
-            chemins=chemins.remove([None])
-            if chemins==[]:
-                chemins=None
-
-        
-        return chemins
-    
-
-    """""
-                if not noeuds_visites[noeud]:
-                    liste_composantes.append(visiter(noeud))
-
-
-            def visiter(curseur, color):
-                chemin=[curseur]
-                while chemin[-1] is not (dest or None):
-                    for voisin in self.graph[curseur]:
-                        if color[voisin[0]]=="white":
-                            color[voisin[0]]="gray"
-                            if voisin[1]< power:
-                                chemin+=visiter(voisin[0],color)
-                                test_visite=True
-                    if not test_visite:
-                        color[curseur]="black"
-                        chemin = None
-                    return chemin
-
-            while "white" in color.values():
-                chemins.append(visiter(src,color))
-            
-        return chemins
-
-                
-    """
-
     
     def get_path_with_power(self, src, dest, power):
-        node_visited={node:False for node in self.nodes}
-        chemin=[]
+        """
+        Détermine si un camion de puissance p peut couvrir le trajet t,
+        et retourne un chemin admissible si c'est possible, ou None sinon.
+        """
+        # Recherche en largeur du graphe pour trouver un chemin de s à t
+        queue = [(src, [])]  # (sommet, chemin)
+        visited = set()
+        while queue:
+            u, path = queue.pop(0)
+            if u == dest:  # Nous avons trouvé un chemin de s à t
+                return path + [dest]  # Ajouter le dernier sommet à la fin du chemin
+            visited.add(u)
+            for voisin in self.graph[u]:
+                if voisin[0] not in visited and voisin[1] <=  power:  # Nous ne visitons que les sommets avec des arêtes valides
+                    queue.append((voisin[0], path + [u]))  # Ajouter le chemin à la liste de chemins
+        # Si nous sortons de la boucle while sans trouver de chemin, cela signifie que nous n'avons pas trouvé de chemin valide
+        return None
+    
 
-        def dfs(node,chemin):
-            chemin+=[node]
-            if node == dest:
-                return True
-            for voisin in self.graph[node]:
-                if voisin[1]<power and not node_visited[voisin[0]]:
-                    if dfs(voisin[0],chemin):
-                        return True
-            chemin.pop()
-            return False
-        dfs(src,chemin)
-        return chemin
-
-
-
-        node_visited={node:False for node in self.nodes}
-        node_visited[src]=True
-        def dfs(node):
-            chemin=[node]
-            for voisin in self.graph[node]:
-                if voisin[1]<=power:
-                    if voisin[0]==dest:
-                        node_visited[voisin[0]]=True
-                        chemin.append()
-                        return(chemin)
-                    elif not node_visited[voisin[0]]:
-                        if voisin[1]<=power:
-                            node_visited[voisin[0]]=True
-                            chemin+=dfs(voisin[0])
-            return(chemin)
-        
-        return dfs(src)
+        def get_path(self, src, dest, power):
+            """
+        Détermine si un camion de puissance p peut couvrir le trajet t,
+        et retourne un chemin admissible si c'est possible, ou None sinon.
+            """
+        # Recherche en largeur du graphe pour trouver un chemin de s à t
+        queue = [(src, [])]  # (sommet, chemin)
+        visited = set()
+        while queue:
+            u, path = queue.pop(0)
+            if u == dest:  # Nous avons trouvé un chemin de s à t
+                return path + [dest]  # Ajouter le dernier sommet à la fin du chemin
+            visited.add(u)
+            for voisin in self.graph[u]:
+                if voisin[0] not in visited and voisin[1] <=  power:  # Nous ne visitons que les sommets avec des arêtes valides
+                    queue.append((voisin[0], path + [u]))  # Ajouter le chemin à la liste de chemins
+        # Si nous sortons de la boucle while sans trouver de chemin, cela signifie que nous n'avons pas trouvé de chemin valide
+        return None
+    
 
 
 
@@ -386,6 +312,11 @@ class Graph:
                     if voisin[1]>power:
                         power=voisin[1]
         return path, power
+    
+
+    def min_power(self, src, dest):
+        return 
+
     
     def visuals(self):
         dessin = graphviz.Digraph('map', filename='map.gv')
