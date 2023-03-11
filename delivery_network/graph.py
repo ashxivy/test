@@ -186,6 +186,23 @@ class Graph:
 
     
     def get_path_with_power(self, src, dest, power):
+        node_visited={node:False for node in self.nodes}
+        chemin=[]
+
+        def dfs(node,chemin):
+            chemin+=[node]
+            if node == dest:
+                return True
+            for voisin in self.graph[node]:
+                if voisin[1]<power and not node_visited[voisin[0]]:
+                    if dfs(voisin[0],chemin):
+                        return True
+            chemin.pop()
+            return False
+        dfs(src,chemin)
+        return chemin
+
+
 
         node_visited={node:False for node in self.nodes}
         node_visited[src]=True
