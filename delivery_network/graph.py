@@ -188,6 +188,7 @@ class Graph:
         solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
 
         return solution, power
+    
 
     
 
@@ -229,3 +230,50 @@ def graph_from_file(filename):
 
 
 
+
+def kruskal(graph):
+    # création d'une liste qui contiendra les arêtes triées par poids croissant
+    edges = []
+    for node in graph.nodes:
+        for voisin in graph.graph[node]:
+            edges.append((voisin[1], node, voisin[0])) #on met power en argument 1 pour que sort() l'ordonne 
+    edges.sort()
+
+    # création d'une liste qui contiendra les ensembles de noeuds connectés
+    node_sets = []
+    for node in graph.nodes:
+        node_sets.append({node})
+
+    # création d'un dictionnaire qui contiendra l'arbre couvrant de poids minimal
+    mst_graph = Graph()
+
+    # parcours de toutes les composantes connexes du graphe
+    for component in graph.connected_components():
+        # on réinitialise les listes et dictionnaires pour chaque composante connexe
+        node_sets = []
+        for node in component:
+            node_sets.append({node})
+        mst_graph.nodes = list(component)
+        mst_graph.graph = {node: [] for node in component}
+
+        # parcours des arêtes triées par poids croissant
+        for power, node1, node2 in edges:
+            # recherche des ensembles auxquels appartiennent node1 et node2
+            node1_set = None
+            node2_set = None
+            for s in node_sets:
+                if node1 in s:
+                    node1_set = s
+                if node2 in s:
+                    node2_set = s
+            # si les noeuds ne sont pas dans le même ensemble, alors l'arête est ajoutée à l'arbre couvrant
+            if node1_set != node2_set:
+                mst_graph.add_edge(node1, node2, power)
+                # fusion des ensembles
+                node1_set.update(node2_set)
+                node_sets.remove(node2_set)
+            # arrêt de la boucle si tous les noeuds appartiennent au même ensemble
+            if len(node_sets) == 1:
+                break
+
+    return mst_graph
