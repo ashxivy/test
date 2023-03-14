@@ -190,7 +190,26 @@ class Graph:
         solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
 
         return solution, power
+    """
+    Question 6: complexité
+
+    Pour calculer la complexité de la fonction min_power on est obligé de considérer
+    la complexité de la fonction find all path auquel on fait appel. 
+    La fonction find_all_path peut être d'une très grande complexité de l'ordre de l'exponentielle 
+    en fonction du nb de chemins possibles. Au pire des cas, sa complexité est donc de l'ordre de
+    O(2^|A|) où |A| est le nombre d'arêtes dans le graphe. 
     
+    La fonction find_min, calcule la puissance nécessaire  pour chaque chemin trouvé par find_all_paths. 
+    Cette boucle itère à travers tous les chemins retournés par find_all_paths et pour chaque chemin elle itère à travers 
+    toutes les arêtes de ce chemin pour trouver l'arête ayant la puissance maximale. La complexité de cette boucle est donc 
+    O(P * L) où P est le nombre de chemins retournés par find_all_paths et L est la longueur maximale d'un chemin.
+
+    donc la complexité finale est O(2^|A| + P * L)
+
+    """
+    
+
+   
 
 
     
@@ -226,6 +245,19 @@ class Graph:
             return power
 
         return get_power(path), path
+    """
+    L'algorithme de Kruskal a une complexité de O(E log E), où E est le nombre d'arêtes du graphe.
+
+    Ensuite, la fonction dfs est appelée pour trouver le chemin le plus court entre src et dest dans l'arbre de recouvrement minimum. 
+    La complexité de dfs est O(E), car elle visite chaque arête une fois.
+
+    Enfin, la fonction get_power est appelée pour calculer la puissance minimale nécessaire pour parcourir le chemin trouvé. 
+    Cette fonction a une complexité de O(N^2), où N est le nombre de sommets du graphe, car elle doit parcourir toutes les arêtes 
+    adjacentes à chaque sommet dans le chemin.
+
+    Ainsi, la complexité totale de min_power_kruskal est de O(E log E + E + N^2), où E est le nombre d'arêtes du graphe et 
+    N est le nombre de sommets du graphe.
+    """
 
     
 
@@ -316,3 +348,11 @@ def kruskal(graph):
                 break
 
     return mst_graph
+
+"""
+La complexité de l'algorithme de Kruskal implémenté ici est de O(m log n), où n est le nombre de nœuds dans le graphe et m est le 
+nombre d'arêtes dans le graphe. La complexité de la création de la liste des arêtes triées est de O(m log m) en raison du tri, mais 
+étant donné que m est au maximum de l'ordre de n^2, cela revient à O(n^2 log n^2) = O(n^2 log n), qui est la même complexité que la 
+fusion et la recherche d'ensemble dans la boucle principale. La création d'une nouvelle instance de la classe Graph dans la boucle 
+principale peut également avoir une complexité linéaire en n, mais cela n'affecte pas la complexité globale de l'algorithme.
+"""
