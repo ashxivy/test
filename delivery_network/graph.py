@@ -129,6 +129,12 @@ class Graph:
                     queue.append((voisin[0], path + [node]))  # Ajouter le chemin à la liste de chemins pour le reparcourir
         # Si nous sortons de la boucle while sans trouver de chemin, cela signifie que nous n'avons pas trouvé de chemin valide
         return None
+    """
+    Question 6: complexité
+    La fonction get_path_with_power est une recherche en largeur où on explore les sommets puis les arrêtes de ces sommets 
+    un à un donc la complexité de l'algorythme dépend du graph sur lequel on travaille (sa taille)
+    donc la complexité peut se résumer par O(|S|+|A|) avec S le nb de sommets et A le nb d'arrêtes. 
+    """
 
 
 
@@ -160,8 +166,6 @@ class Graph:
         return paths
 
 
-
-
     def min_power(self, src, dest):
         """
         Écrire une fonction min_power qui calcule, pour un trajet t donné, la puissance minimale
@@ -186,6 +190,9 @@ class Graph:
         solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
 
         return solution, power
+    
+
+
     
     def min_power_kruskal(self, src, dest):
         g = kruskal(self)
