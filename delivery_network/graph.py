@@ -173,7 +173,7 @@ class Graph:
             for voisin in self.graph[node]:
                 if voisin[1]>max_power:
                     max_power=voisin[1]
-        while abs(max_power-min_power)>1:
+        while max_power-min_power>1:
             if self.get_path_with_power(src,dest,min_power)==None:
                 min_power=mt.floor((max_power+min_power)/2)-1
             else: 
@@ -226,11 +226,23 @@ class Graph:
     """
     
 
-   
+    def min_power_kruskal(self,src,dest):
+        g = kruskal(self)
+        path=g.get_path_with_power(src,dest,float('inf'))
+        def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
+            power = 0
+            for i in range(len(path)-1):
+                for voisin in self.graph[path[i]]:
+                    if voisin[0] == path[i+1] and voisin[1] > power:
+                        power = voisin[1]
+            return power
+
+        return get_power(path), path
+
 
 
     
-    def min_power_kruskal(self, src, dest):
+    def min_power_kruskal_long(self, src, dest):
         g = kruskal(self)
 
         def dfs(graph, src, dest, visited, origin):
@@ -262,6 +274,10 @@ class Graph:
             return power
 
         return get_power(path), path
+    
+
+
+
     """
     L'algorithme de Kruskal a une complexité de O(E log E), où E est le nombre d'arêtes du graphe.
 
@@ -380,7 +396,7 @@ import time
 
 
 
-
+"""
 def test_time_min_power(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
     s=f.readlines()
@@ -394,18 +410,18 @@ def test_time_min_power(filename1,filename2):
         
     t0=time.perf_counter()
 
-    for i in range(1,2):
+    for i in range(1,11):
         g.min_power(s[i][0], s[i][1])
     
     t1=time.perf_counter()
 
-    return ((t1-t0)*len(s))
+    return (t1-t0*len(s)/10)
 
 
-print(test_time_min_power("input/routes.1.in", "input/network.1.in"))
+print(test_time_min_power("input/routes.2.in", "input/network.2.in"))
 
 
-"""
+
 def test_time_min_power_kruskal(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
     s=f.readlines()
@@ -428,5 +444,5 @@ def test_time_min_power_kruskal(filename1,filename2):
 
     return ((t1-t0)*len(s)/10)
 
-print(test_time_min_power_kruskal("input/routes.1.in", "input/network.1.in"))
+print(test_time_min_power_kruskal("input/routes.2.in", "input/network.2.in"))
 """
