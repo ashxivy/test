@@ -356,8 +356,13 @@ nombre d'arêtes dans le graphe. La complexité de la création de la liste des 
 fusion et la recherche d'ensemble dans la boucle principale. La création d'une nouvelle instance de la classe Graph dans la boucle 
 principale peut également avoir une complexité linéaire en n, mais cela n'affecte pas la complexité globale de l'algorithme.
 """
+
+
+
 import time 
 import math as mt
+
+"""
 
 def test_time_min_power(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
@@ -365,18 +370,23 @@ def test_time_min_power(filename1,filename2):
     a=0
     b=mt.floor(mt.log(len(s)))
     for i in range(1, len(s)):
-        s[i]=s[i].split("")
+        s[i]=s[i].split(" ")
         s[i][1]=int(s[i][1])
         s[i][0]=int(s[i][0])
-        s[i][2]=int(s[i][2])
+    g=graph_from_file(filename2)
+        
+    t0=time.perf_counter()
 
-    for i in range(b):
-        Graph.get_path_with_power(graph_from_file(filename2, s[i][0], s[i][1], s[i][2]))
-        a+=time.perf_counter()
+    for i in range(2):
+        g.min_power(s[i][0], s[i][1])
+    
+    t1=time.perf_counter()
 
-    return (a*len(s)/b)
+    return ((t0-t1)*len(s))
 
-test_time_min_power("input/routes.4.in", "input/network.4.in")
+
+
+"""
 
 def test_time_min_power_kruskal(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
@@ -384,13 +394,20 @@ def test_time_min_power_kruskal(filename1,filename2):
     a=0
     b=mt.floor(mt.log(len(s)))
     for i in range(1, len(s)):
-        s[i]=s[i].split("")
+        s[i]=s[i].split(" ")
         s[i][1]=int(s[i][1])
         s[i][0]=int(s[i][0])
         s[i][2]=int(s[i][2])
+    
+    g=graph_from_file(filename2)
 
-    for i in range(b):
-        Graph.min_power_kruskal(graph_from_file(filename2, s[i][0], s[i][1], s[i][2]))
-        a+=time.perf_counter()
 
-    return (a*len(s)/b)
+    t0=time.perf_counter()
+    for i in range(1,11):
+        g.min_power_kruskal(s[i][0], s[i][1])
+    
+    t1=time.perf_counter()
+
+    return ((t1-t0)*len(s)/10)
+
+print(test_time_min_power_kruskal("input/routes.1.in", "input/network.1.in"))
