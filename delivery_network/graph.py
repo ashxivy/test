@@ -1,4 +1,5 @@
 import graphviz
+import math as mt
 
 class Graph:
     """
@@ -164,9 +165,25 @@ class Graph:
                         paths.append(newpath)
 
         return paths
+    
+    def min_power(self,src,dest):
+        min_power=0
+        max_power=0
+        for node in self.nodes:
+            for voisin in self.graph[node]:
+                if voisin[1]>max_power:
+                    max_power=voisin[1]
+        while abs(max_power-min_power)>1:
+            if self.get_path_with_power(src,dest,min_power)==None:
+                min_power=mt.floor((max_power+min_power)/2)-1
+            else: 
+                max_power=mt.floor((max_power+min_power)/2)
+
+        return self.get_path_with_power(src,dest,min_power), min_power
 
 
-    def min_power(self, src, dest):
+
+    def min_power_long(self, src, dest):
         """
         Écrire une fonction min_power qui calcule, pour un trajet t donné, la puissance minimale
         d’un camion pouvant couvrir ce trajet. La fonction devra retourner le chemin, et la puissance minimale.
@@ -360,9 +377,9 @@ principale peut également avoir une complexité linéaire en n, mais cela n'aff
 
 
 import time 
-import math as mt
 
-"""
+
+
 
 def test_time_min_power(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
@@ -377,17 +394,18 @@ def test_time_min_power(filename1,filename2):
         
     t0=time.perf_counter()
 
-    for i in range(2):
+    for i in range(1,2):
         g.min_power(s[i][0], s[i][1])
     
     t1=time.perf_counter()
 
-    return ((t0-t1)*len(s))
+    return ((t1-t0)*len(s))
 
+
+print(test_time_min_power("input/routes.1.in", "input/network.1.in"))
 
 
 """
-
 def test_time_min_power_kruskal(filename1,filename2):
     f=open(filename1, "r", encoding="utf-8")
     s=f.readlines()
@@ -411,3 +429,4 @@ def test_time_min_power_kruskal(filename1,filename2):
     return ((t1-t0)*len(s)/10)
 
 print(test_time_min_power_kruskal("input/routes.1.in", "input/network.1.in"))
+"""
