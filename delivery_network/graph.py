@@ -350,6 +350,7 @@ def kruskal(graph):
     # création d'un dictionnaire qui contiendra l'arbre couvrant de poids minimal
     mst_graph = Graph()
 
+
     # parcours de toutes les composantes connexes du graphe
     for component in graph.connected_components():
         # on réinitialise les listes et dictionnaires pour chaque composante connexe
@@ -357,6 +358,7 @@ def kruskal(graph):
         for node in component:
             node_sets.append({node})
         mst_graph.nodes = list(component)
+        mst_graph.nb_nodes = len(mst_graph.nodes)
         mst_graph.graph = {node: [] for node in component}
 
         # parcours des arêtes triées par poids croissant
@@ -378,6 +380,7 @@ def kruskal(graph):
             # arrêt de la boucle si tous les noeuds appartiennent au même ensemble
             if len(node_sets) == 1:
                 break
+        
 
     return mst_graph
 
@@ -454,7 +457,7 @@ def glouton(filegraph, fileroute, filetruck):
     route=[]
     for i in range(1, len(s)):
         s[i]=s[i].split(" ")
-        route.append([int(s[i][2]),s[i][0],s[i][1]]) #profit, départ, arrivée
+        route.append([int(s[i][2]),int(s[i][0]),int(s[i][1])]) #profit, départ, arrivée
     route.sort(reverse=True)
    
 
@@ -467,7 +470,7 @@ def glouton(filegraph, fileroute, filetruck):
         trucks.sort()
     
     def sort_trucks(trucks):
-        for i in range(len(trucks)-1):
+        for i in range(0,(len(trucks)-2)): #on met -2 car naturellement, la len rajoute 1 pour obtenir la bonne longueur dans une boucle in range, donc étant donné qu'on utilise i+1, il faut faire -1 en plus
             if trucks[i+1][1]<=trucks[i][1]:
                 trucks.remove(trucks[i])
         return trucks
@@ -482,8 +485,9 @@ def glouton(filegraph, fileroute, filetruck):
                 for j in range(len(trucks)):
                     if trucks[j][0]>=min_power:
                         route[i][0]=route[i][0]/trucks[j][1] #on divise le profit par le coût de revient
-                        route[i].append([path,j])#on ajoute l'indice du camion qu'il faudra prendre pour le retrouver facilement par la suite lors des calculs
+                        route[i]+=[path,j]#on ajoute l'indice du camion qu'il faudra prendre pour le retrouver facilement par la suite lors des calculs
                         test=False
+                        break
         route.sort(reverse=True)
         return route
     
@@ -491,11 +495,12 @@ def glouton(filegraph, fileroute, filetruck):
             
     budget=25*(10**9)
     spend=0
+    results=[]
 
     while spend < budget:
         for i in range(len(route)):
             spend=spend + trucks[route[i][4]][1]
-            results=results.append(route[i][4],route[i][3]) #l'indice du camion acheté + le chemin qu'il va réaliser
+            results+=[[route[i][4],route[i][3]]] #l'indice du camion acheté + le chemin qu'il va réaliser
     
     if spend>budget:
         results.remove(results[-1])
@@ -503,6 +508,6 @@ def glouton(filegraph, fileroute, filetruck):
     return results
 
 
-print(glouton("input/network.1.in", "input/routes.1.in", "input/trucks.0.in"))
+print(glouton("input/network.2.in", "input/routes.2.in", "input/trucks.1.in"))
 
     
