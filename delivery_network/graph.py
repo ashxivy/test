@@ -454,15 +454,16 @@ def glouton(filegraph, fileroute, filetruck):
     route=[]
     for i in range(1, len(s)):
         s[i]=s[i].split(" ")
-        route.append((int(s[i][2]),int(s[i][0]),int(s[i][1]))) #profit, départ, arrivée
+        route.append([int(s[i][2]),s[i][0],s[i][1]]) #profit, départ, arrivée
     route.sort(reverse=True)
+   
 
     t=open(filetruck, "r", encoding="utf-8")
     truck=t.readlines()
     trucks=[]
     for i in range(1, len(truck)):
         truck[i]=truck[i].split(" ")
-        trucks.append((int(truck[i][0]),int(truck[i][1]))) #puissance et coût
+        trucks.append([int(truck[i][0]),int(truck[i][1])]) #puissance et coût
         trucks.sort()
     
     def sort_trucks(trucks):
@@ -481,7 +482,7 @@ def glouton(filegraph, fileroute, filetruck):
                 for j in range(len(trucks)):
                     if trucks[j][0]>=min_power:
                         route[i][0]=route[i][0]/trucks[j][1] #on divise le profit par le coût de revient
-                        route[i].append((path,j))#on ajoute l'indice du camion qu'il faudra prendre pour le retrouver facilement par la suite lors des calculs
+                        route[i].append([path,j])#on ajoute l'indice du camion qu'il faudra prendre pour le retrouver facilement par la suite lors des calculs
                         test=False
         route.sort(reverse=True)
         return route
@@ -502,6 +503,6 @@ def glouton(filegraph, fileroute, filetruck):
     return results
 
 
-print(glouton("input/network.00.in", "input/routes.2.in", "input/trucks.0.in"))
+print(glouton("input/network.1.in", "input/routes.1.in", "input/trucks.0.in"))
 
     
