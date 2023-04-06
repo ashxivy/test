@@ -58,4 +58,4 @@ def glouton(filegraph, fileroute, filetruck):
 
     return results
 
-print(glouton("input/network.1.in", "input/routes.1.in", "input/trucks.0.in"))
+print(glouton("input/network.2.in", "input/routes.2.in", "input/trucks.0.in"))

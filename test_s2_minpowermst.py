@@ -2,7 +2,8 @@ import sys
 sys.path.append("delivery_network")
 
 import unittest
-from graph import Graph, graph_from_file, kruskal
+from graph import Graph, graph_from_file
+
 
 class TestMinPowerKruskal(unittest.TestCase):
     def setUp(self):
