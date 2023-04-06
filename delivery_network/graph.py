@@ -1,4 +1,3 @@
-import graphviz
 import math as mt
 
 class Graph:
@@ -76,6 +75,7 @@ class Graph:
     
 
     def connected_components(self):
+
         liste_composantes = []
         noeuds_visites = {noeud: False for noeud in self.nodes}
 
@@ -137,6 +137,33 @@ class Graph:
     donc la complexité peut se résumer par O(|S|+|A|) avec S le nb de sommets et A le nb d'arrêtes. 
     """
 
+    def get_path_with_power1(self, src, dest, power):
+        """
+        Détermine si un camion de puissance p peut couvrir le trajet t,
+        et retourne un chemin admissible si c'est possible, ou None sinon.
+        """
+        queue = [(src, [])]  # (sommet, chemin)
+        visited = set()
+        while queue:
+            node, path = queue.pop(0)
+            if node == dest:
+                return path + [dest]
+            visited.add(node)
+            for voisin in self.graph[node]:
+                voisin_node, voisin_power = voisin
+                if voisin_node not in visited and voisin_power <= power:
+                    queue.append((voisin_node, path + [node]))
+                    visited.add(voisin_node)
+        return None
+    """
+    La complexité de la fonction get_path_with_power optimisée dépendra de la complexité 
+    de la recherche en largeur (BFS) dans le graphe représenté par l'objet self.
+    Supposons que le graphe ait n sommets et m arêtes.
+    Dans le pire des cas, le BFS doit parcourir tous les sommets et toutes les arêtes 
+    pour trouver un chemin valide. Ainsi, la complexité en temps de la fonction est de l'ordre de O(m+n).
+    Cependant, dans la plupart des cas, le BFS ne doit pas explorer tous les sommets et toutes les arêtes du graphe, 
+    ce qui donne une complexité en temps plus faible.
+    """
 
 
     
@@ -392,122 +419,3 @@ fusion et la recherche d'ensemble dans la boucle principale. La création d'une 
 principale peut également avoir une complexité linéaire en n, mais cela n'affecte pas la complexité globale de l'algorithme.
 """
 
-
-
-import time 
-
-
-
-"""
-def test_time_min_power(filename1,filename2):
-    f=open(filename1, "r", encoding="utf-8")
-    s=f.readlines()
-    a=0
-    b=mt.floor(mt.log(len(s)))
-    for i in range(1, len(s)):
-        s[i]=s[i].split(" ")
-        s[i][1]=int(s[i][1])
-        s[i][0]=int(s[i][0])
-    g=graph_from_file(filename2)
-        
-    t0=time.perf_counter()
-
-    for i in range(1,11):
-        g.min_power(s[i][0], s[i][1])
-    
-    t1=time.perf_counter()
-
-    return (t1-t0*len(s)/10)
-
-
-print(test_time_min_power("input/routes.2.in", "input/network.2.in"))
-
-
-
-def test_time_min_power_kruskal(filename1,filename2):
-    f=open(filename1, "r", encoding="utf-8")
-    s=f.readlines()
-    a=0
-    b=mt.floor(mt.log(len(s)))
-    for i in range(1, len(s)):
-        s[i]=s[i].split(" ")
-        s[i][1]=int(s[i][1])
-        s[i][0]=int(s[i][0])
-        s[i][2]=int(s[i][2])
-    
-    g=graph_from_file(filename2)
-
-
-    t0=time.perf_counter()
-    for i in range(1,11):
-        g.min_power_kruskal(s[i][0], s[i][1])
-    
-    t1=time.perf_counter()
-
-    return ((t1-t0)*len(s)/10)
-
-print(test_time_min_power_kruskal("input/routes.2.in", "input/network.2.in"))
-"""
-
-def glouton(filegraph, fileroute, filetruck):
-    g=graph_from_file(filegraph)
-
-    f=open(fileroute, "r", encoding="utf-8")
-    s=f.readlines()
-    route=[]
-    for i in range(1, len(s)):
-        s[i]=s[i].split(" ")
-        route.append([int(s[i][2]),int(s[i][0]),int(s[i][1])]) #profit, départ, arrivée
-    route.sort(reverse=True)
-   
-
-    t=open(filetruck, "r", encoding="utf-8")
-    truck=t.readlines()
-    trucks=[]
-    for i in range(1, len(truck)):
-        truck[i]=truck[i].split(" ")
-        trucks.append([int(truck[i][0]),int(truck[i][1])]) #puissance et coût
-        trucks.sort()
-    
-    def sort_trucks(trucks):
-        for i in range(0,(len(trucks)-2)): #on met -2 car naturellement, la len rajoute 1 pour obtenir la bonne longueur dans une boucle in range, donc étant donné qu'on utilise i+1, il faut faire -1 en plus
-            if trucks[i+1][1]<=trucks[i][1]:
-                trucks.remove(trucks[i])
-        return trucks
-    
-    trucks=sort_trucks(trucks)
-
-    def coeff_advantage(g, route, trucks):
-        for i in range (len(route)):
-            min_power, path = g.min_power_kruskal(route[i][1],route[i][2])
-            test=True
-            while test:
-                for j in range(len(trucks)):
-                    if trucks[j][0]>=min_power:
-                        route[i][0]=route[i][0]/trucks[j][1] #on divise le profit par le coût de revient
-                        route[i]+=[path,j]#on ajoute l'indice du camion qu'il faudra prendre pour le retrouver facilement par la suite lors des calculs
-                        test=False
-                        break
-        route.sort(reverse=True)
-        return route
-    
-    route=coeff_advantage(g,route,trucks)
-            
-    budget=25*(10**9)
-    spend=0
-    results=[]
-
-    while spend < budget:
-        for i in range(len(route)):
-            spend=spend + trucks[route[i][4]][1]
-            results+=[[route[i][4],route[i][3]]] #l'indice du camion acheté + le chemin qu'il va réaliser
-    
-    if spend>budget:
-        results.remove(results[-1])
-
-    return results
-
-
-print(glouton("input/network.2.in", "input/routes.2.in", "input/trucks.1.in"))
-
-    
