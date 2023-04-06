@@ -233,8 +233,6 @@ def graph_from_file(filename):
     return g
 
 
-
-
 def kruskal(graph):
     """
     fonction kruskal qui prend en entrée un graphe au format de la classe Graph (e.g., g) et qui retourne un autre 
