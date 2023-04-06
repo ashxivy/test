@@ -75,22 +75,28 @@ class Graph:
     
 
     def connected_components(self):
-
-        liste_composantes = []
-        noeuds_visites = {noeud: False for noeud in self.nodes}
+        """
+        but: déterminer les différentes composantes connexes du graphe.
+        """
+        liste_composantes = [] #on va faire une liste de liste de noeuds qui formeront une composante connexe
+        noeuds_visites = {noeud: False for noeud in self.nodes} #on utilise un dictionnaire pour marquer si un noeud a été visité ou non
 
         def visiter(noeud):
+            """
+            but: à partir d'un noeud qui n'a pas été visité, on parcourt tout ses voisins, puis les voisins de ses voisins par récursivité 
+            pour renvoyer une composante connexe à partir d'un noeud
+            """
             composante = [noeud]
-            for voisin in self.graph[noeud]:
+            for voisin in self.graph[noeud]: #on regarde les voisins du noeud considéré
                 voisin = voisin[0]
-                if not noeuds_visites[voisin]:
+                if not noeuds_visites[voisin]: #s'il n'a pas déjà été visité (càd ajouté à la liste d'une composante)
                     noeuds_visites[voisin]=True
-                    composante += visiter(voisin)
+                    composante += visiter(voisin) #on itère sur les voisins des voisins 
             return composante
 
         for noeud in self.nodes:
-            if not noeuds_visites[noeud]:
-                liste_composantes.append(visiter(noeud))
+            if not noeuds_visites[noeud]: #tant que tous les noeuds ont pas été visités
+                liste_composantes.append(visiter(noeud)) #on ajoute les composantes connexes une à une 
 
         return liste_composantes
 
@@ -137,70 +143,19 @@ class Graph:
     donc la complexité peut se résumer par O(|S|+|A|) avec S le nb de sommets et A le nb d'arrêtes. 
     """
 
-    def get_path_with_power1(self, src, dest, power):
-        """
-        Détermine si un camion de puissance p peut couvrir le trajet t,
-        et retourne un chemin admissible si c'est possible, ou None sinon.
-        """
-        queue = [(src, [])]  # (sommet, chemin)
-        visited = set()
-        while queue:
-            node, path = queue.pop(0)
-            if node == dest:
-                return path + [dest]
-            visited.add(node)
-            for voisin in self.graph[node]:
-                voisin_node, voisin_power = voisin
-                if voisin_node not in visited and voisin_power <= power:
-                    queue.append((voisin_node, path + [node]))
-                    visited.add(voisin_node)
-        return None
-    """
-    La complexité de la fonction get_path_with_power optimisée dépendra de la complexité 
-    de la recherche en largeur (BFS) dans le graphe représenté par l'objet self.
-    Supposons que le graphe ait n sommets et m arêtes.
-    Dans le pire des cas, le BFS doit parcourir tous les sommets et toutes les arêtes 
-    pour trouver un chemin valide. Ainsi, la complexité en temps de la fonction est de l'ordre de O(m+n).
-    Cependant, dans la plupart des cas, le BFS ne doit pas explorer tous les sommets et toutes les arêtes du graphe, 
-    ce qui donne une complexité en temps plus faible.
-    """
-
-
-    
-    def find_all_paths(self, src, dest, path=[]):
-        """
-        Renvoie tous les chemins entre src et dest 
-        """
-        test=False
-
-        for liste in self.connected_components_set(): #on vérifie si les pt de départ et d'arrivé sont reliés pour savoir si un chemin existe
-            if src and dest in liste:
-                test=True
-
-        if not test:
-            paths=None
-        
-        else: #programme si on sait qu'un chemin existe 
-            if src == dest: #si on parvient jusqu'à la dernière arrête
-                return [path + [src]]
-
-            paths = []
-            for node in self.graph[src]:
-                if node[0] not in path: #on verifie si le sommet n'est aps déjà dans le chemin pour éviter les cycles
-                    newpaths = self.find_all_paths(node[0], dest, path + [src]) 
-                    for newpath in newpaths:
-                        paths.append(newpath)
-
-        return paths
-    
     def min_power(self,src,dest):
+        """
+        calcule, pour un trajet t donné, la puissance minimale d'un camion pouvant couvrir ce trajet. La fonction devra 
+        retourner le chemin, et la puissance minimale.
+        On utilise ici une approche par dichotomie 
+        """
         min_power=0
         max_power=0
-        for node in self.nodes:
+        for node in self.nodes: #d'abord on va chercher à déterminer qu'elle est la puissance maximale pour circuler sur le graph
             for voisin in self.graph[node]:
                 if voisin[1]>max_power:
                     max_power=voisin[1]
-        while max_power-min_power>1:
+        while max_power-min_power>1: #par dichotomie, on va déterminer la puissance minimale pour effectuer un trajet 
             if self.get_path_with_power(src,dest,min_power)==None:
                 min_power=mt.floor((max_power+min_power)/2)-1
             else: 
@@ -209,51 +164,9 @@ class Graph:
         return self.get_path_with_power(src,dest,min_power), min_power
 
 
-
-    def min_power_long(self, src, dest):
-        """
-        Écrire une fonction min_power qui calcule, pour un trajet t donné, la puissance minimale
-        d’un camion pouvant couvrir ce trajet. La fonction devra retourner le chemin, et la puissance minimale.
-        """
-        paths = self.find_all_paths(src, dest) #on receuille tous les chemins possibles
-        powers = []
-
-        def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
-            power = 0
-            for i in range(len(path)-1):
-                for voisin in self.graph[path[i]]:
-                    if voisin[0] == path[i+1] and voisin[1]>power:
-                        power = voisin[1]
-            return power
-
-        for path in paths:
-            powers.append(get_power(path)) #on receuille la puissance nécéssaire de tous les chemins
-
-        power = min(powers) #on prend le min des puissances
-        i = powers.index(power)
-        solution = paths[i] #on receuille le chemin qui nécéssite le moins de puissance
-
-        return solution, power
-    """
-    Question 6: complexité
-
-    Pour calculer la complexité de la fonction min_power on est obligé de considérer
-    la complexité de la fonction find all path auquel on fait appel. 
-    La fonction find_all_path peut être d'une très grande complexité de l'ordre de l'exponentielle 
-    en fonction du nb de chemins possibles. Au pire des cas, sa complexité est donc de l'ordre de
-    O(2^|A|) où |A| est le nombre d'arêtes dans le graphe. 
-    
-    La fonction find_min, calcule la puissance nécessaire  pour chaque chemin trouvé par find_all_paths. 
-    Cette boucle itère à travers tous les chemins retournés par find_all_paths et pour chaque chemin elle itère à travers 
-    toutes les arêtes de ce chemin pour trouver l'arête ayant la puissance maximale. La complexité de cette boucle est donc 
-    O(P * L) où P est le nombre de chemins retournés par find_all_paths et L est la longueur maximale d'un chemin.
-
-    donc la complexité finale est O(2^|A| + P * L)
-
-    """
-    
-
     def min_power_kruskal(self,src,dest):
+        """
+        """
         g = kruskal(self)
         path=g.get_path_with_power(src,dest,float('inf'))
         def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
@@ -265,45 +178,6 @@ class Graph:
             return power
 
         return get_power(path), path
-
-
-
-    
-    def min_power_kruskal_long(self, src, dest):
-        g = kruskal(self)
-        def dfs(graph, src, dest, visited, origin):
-            visited[src] = True
-            for voisin in graph.graph[src]:
-                origin[voisin[0]] = src
-                if voisin[0] == dest:
-                    path = [voisin[0]]
-                    while path[0] != src:
-                        path.insert(0, origin[path[0]])
-                    return path
-                elif not visited[voisin[0]]:
-                    path = dfs(graph, voisin[0], dest, visited, origin)
-                    if path is not None:
-                        path.insert(0, src)
-                        return path
-            return None
-
-        visited = {noeud: False for noeud in g.nodes}
-        origin = {noeud: None for noeud in g.nodes}
-        path = dfs(g, src, dest, visited, origin)
-
-        def get_power(path): #on définit une fonction qui calcule la puissance nécéssaire pour parcourir un chemin
-            power = 0
-            for i in range(len(path)-1):
-                for voisin in self.graph[path[i]]:
-                    if voisin[0] == path[i+1] and voisin[1] > power:
-                        power = voisin[1]
-            return power
-
-        return get_power(path), path
-    
-
-
-
     """
     L'algorithme de Kruskal a une complexité de O(E log E), où E est le nombre d'arêtes du graphe.
 
@@ -362,6 +236,16 @@ def graph_from_file(filename):
 
 
 def kruskal(graph):
+    """
+    fonction kruskal qui prend en entrée un graphe au format de la classe Graph (e.g., g) et qui retourne un autre 
+    élément de cette classe (e.g., g_mst) correspondant à un arbre couvrant de poids minimal de g. 
+    Analyser la complexité de l'algorithme implémenté.
+    Indice : On suggère d'implémenter l'algorithme de Kruskal. Celui-ci est très simple : on prend chaque
+    arête dans l'ordre des poids croissant seulement si l'ajouter aux arêtes déjà prises ne crée pas de cycle
+    (sinon on la jète et on passe à la suivante). La difficulté est de, quand on considère une arête, déterminer
+    rapidement si l'ajouter aux arêtes déjà prises crée un cycle. Ceci peut être fait efficacement avec une
+    structure de donnée particulière appelé Union-Find.
+    """
     # création d'une liste qui contiendra les arêtes triées par poids croissant
     edges = []
     for node in graph.nodes:
